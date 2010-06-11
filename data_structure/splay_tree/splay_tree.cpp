@@ -1,20 +1,33 @@
-//pass:pku2761
+/*
+ * pass:pku2761,pku2892,pku2352,pku3841
+ * */
 #include<stdio.h>
+#include<algorithm>
+using namespace std;
 template<class T>
-struct splay_tree{
+struct SplayTree{
 	struct node{
-		node *left,*right;
 		T value;
+		node *left,*right;
 		int times,size;
-		node(int v,node* l,node* r):value(v),left(l),right(r),
-		times(1),size(1){}
 	};
-	node *root,*null;
-	splay_tree(){
-		null=new node(0,0,0);
-		null->left=null->right=0;
+	node *root,*null,*pool;
+	int alloc_ptr;
+	SplayTree(){
+		null=new node;
+		null->left=null->right=null;
 		null->times=null->size=0;
+		pool=new node[100000];
 		root=null;
+		alloc_ptr=0;
+	}
+	node* new_node(const T& x){
+		node* res=&pool[alloc_ptr++];
+		res->value=x;
+		res->left=res->right=null;
+		res->times=1;
+		res->size=1;
+		return res;
 	}
 	node* splay(const T& x,node* cur){
 		while(1){
@@ -52,7 +65,7 @@ struct splay_tree{
 	}
 	void insert(const T& v){
 		if(root==null){
-			root=new node(v,null,null);
+			root=new_node(v);
 		}else{
 			root=splay(v,root);
 			if(v == root->value){
@@ -60,21 +73,21 @@ struct splay_tree{
 				root->size++;
 				return;
 			}
-			node* new_node=new node(v,null,null);
+			node* nnode=new_node(v);
 			if(v < root->value){
-				new_node->right=root;
-				new_node->left=root->left;
+				nnode->right=root;
+				nnode->left=root->left;
 				root->left=null;
-				update(new_node->right);
-				update(new_node);
+				update(nnode->right);
+				update(nnode);
 			}else{
-				new_node->left=root;
-				new_node->right=root->right;
+				nnode->left=root;
+				nnode->right=root->right;
 				root->right=null;
-				update(new_node->left);
-				update(new_node);
+				update(nnode->left);
+				update(nnode);
 			}
-			root=new_node;
+			root=nnode;
 		}
 	}
 	void remove(const T& v){
@@ -84,28 +97,25 @@ struct splay_tree{
 		if(root->times>1){
 			root->times--;
 		}else{
-			node* new_tree;
+			node* ntree;
 			if(null == root->left){
-				new_tree=root->right;
+				ntree=root->right;
 			}else{
-				new_tree=splay(v,root->left);
-				new_tree->right=root->right;
+				ntree=splay(v,root->left);
+				ntree->right=root->right;
 			}
-			delete root;
-			root=new_tree;
+			root=ntree;
 			update(root);
 		}
 	}
-	T find_max(){
-		node* cur=root;
-		while(cur->right)
+	T find_max(node* cur){
+		while(cur->right!=null)
 			cur=cur->right;
 		root=splay(cur->value,root);
 		return cur->value;
 	}
-	T find_min(){
-		node* cur=root;
-		while(cur->left)
+	T find_min(node* cur){
+		while(cur->left!=null)
 			cur=cur->left;
 		root=splay(cur->value,root);
 		return cur->value;
@@ -114,16 +124,9 @@ struct splay_tree{
 		root=splay(v,root);
 		return root->value==v;
 	}
-	void clear(node* cur){
-		if(null != cur){
-			clear(cur->left);
-			clear(cur->right);
-			delete cur;
-		}
-	}
 	inline void clear(){
-		clear(root);
 		root=null;
+		alloc_ptr=0;
 	}
 	inline node* zig(node* k2){
 		node* k1=k2->left;
@@ -166,18 +169,84 @@ struct splay_tree{
 			}
 		}
 	}
+	//return min element greater than or equal to x
+	T find_next(const T& x){
+		root=splay(x,root);
+		if(x <= root->value)return root->value;
+		else return find_min(root->right);
+	}
+	//return max element smaller than or equal to x
+	T find_prev(const T& x){
+		root=splay(x,root);
+		if(x >= root->value)return root->value;
+		else return find_max(root->left);
+	}
+	//return the number of elements smaller than or equal to x
+	int count_prev(const T& x){
+		root=splay(x,root);
+		if(x < root->value){
+			return root->left->size;
+		}else{	//	x == root->value or max of root->left is the prev of x
+			return root->left->size+root->times;
+		}
+	}
+	//return the number of elements greater than or equal to x
+	int count_next(const T& x){
+		root=splay(x,root);
+		if(x > root->value){
+			return root->right->size;
+		}else{	//	x == root->value or min of root->right is the next of x
+			return root->right->size+root->times;
+		}
+	}
+};
+struct client{
+	int i,p;
+	client(){}
+	client(int i,int p):i(i),p(p){}
+	bool operator< (const client& t)const{
+		return p < t.p;
+	}
+	bool operator==(const client& t)const{
+		return p == t.p;
+	}
+	bool operator!=(const client &t)const{
+		return p!=t.p;
+	}
 };
 int main(){
-	int n,a,times,t;
-	splay_tree<int> tree;
-	char s[20];
-	scanf("%d",&n);
-	for(int i=0;i<n;i++){
-		scanf("%s%d",s,&t);
-		if(s[0]=='I')tree.insert(t);
-		else if(s[0]=='D')tree.remove(t);
-		else if(s[0]=='R')printf("%d\n",tree.rank(t));
-		else if(s[0]=='K')printf("%d\n",tree.select(t));
+	int n,a,b,ans;
+	SplayTree<client> tree;
+	while(1){
+		scanf("%d",&n);
+		switch(n){
+			case 1:
+				scanf("%d%d",&a,&b);
+				tree.insert(client(a,b));
+				break;
+			case 2:
+				if(tree.root->size){
+					client t=tree.find_max(tree.root);
+					ans=t.i;
+					tree.remove(t);
+				}else{
+					ans=0;
+				}
+				printf("%d\n",ans);
+				break;
+			case 3:
+				if(tree.root->size){
+					client t=tree.find_min(tree.root);
+					ans=t.i;
+					tree.remove(t);
+				}else{
+					ans=0;
+				}
+				printf("%d\n",ans);
+				break;
+			case 0:goto outside;
+		}
 	}
+outside:
 	return 0;
 }
