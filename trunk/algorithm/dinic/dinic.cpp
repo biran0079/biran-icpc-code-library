@@ -1,5 +1,5 @@
 /*
- *	pass:	pku1273,pku1459
+ *	pass:	pku1273,pku1459,pku2125
  * */
 #include <cstdio>
 #include <cstring>

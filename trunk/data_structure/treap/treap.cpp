@@ -1,5 +1,5 @@
 /*
- *	pass:pku2761,pku1442,pku2892,pku2892,pku2352
+ *	pass:pku2761,pku1442,pku2892,pku2892,pku2352,,pku2182
  * */
 #include<stdio.h>
 #include<stdlib.h>
@@ -219,54 +219,26 @@ struct Treap{
 		}
 		return res;
 	}
-};
-struct client{
-	int i,p;
-	client(){}
-	client(int i,int p):i(i),p(p){}
-	bool operator< (const client& t)const{
-		return p < t.p;
-	}
-	bool operator==(const client& t)const{
-		return p == t.p;
-	}
-	bool operator!=(const client &t)const{
-		return p!=t.p;
-	}
-};
-int main(){
-	int n,a,b,ans;
-	Treap<client> tree;
-	while(1){
-		scanf("%d",&n);
-		switch(n){
-			case 1:
-				scanf("%d%d",&a,&b);
-				tree.insert(client(a,b));
-				break;
-			case 2:
-				if(tree.root->size){
-					client t=tree.find_max(tree.root);
-					ans=t.i;
-					tree.remove(t);
-				}else{
-					ans=0;
-				}
-				printf("%d\n",ans);
-				break;
-			case 3:
-				if(tree.root->size){
-					client t=tree.find_min(tree.root);
-					ans=t.i;
-					tree.remove(t);
-				}else{
-					ans=0;
-				}
-				printf("%d\n",ans);
-				break;
-			case 0:goto outside;
+	
+	//insert element x into the tree 
+	//such that it is in kth position when prtformming in-order traversal.
+	//1 <= k <= cur->size+1
+	//Type T no need to be comparable.
+	void insert_to_kth_pos(const T& x,node* &cur,int k){	
+		if(cur == null && k==1){
+			cur = new_node(x);
+		}else if(k <= cur->left->size+1){
+			insert_to_kth_pos(x,cur->left,k);
+			if(cur->pri > cur->left->pri)
+				left_rotate(cur);	 
+		}else if(k<=cur->size+1){
+			insert_to_kth_pos(x,cur->right,k-cur->left->size-1);	
+			if(cur->pri > cur->right->pri)
+				right_rotate(cur);	   
 		}
+		resize(cur);
 	}
-outside:
-	return 0;
-}
+	void insert_to_kth_pos(const T& x,int k){
+		insert_to_kth_pos(x,root,k);
+	}
+};
