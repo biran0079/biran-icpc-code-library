@@ -1,5 +1,5 @@
 /*
- *	pass:	pku2516
+ *	pass:	pku2516,hdu3488
  * */
 #include<stdio.h>
 #include<string.h>

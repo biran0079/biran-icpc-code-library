@@ -3,16 +3,14 @@
  * */
 #include <cstdio>
 #include <cstring>
-#include <climits>
 using namespace std;
 const int maxn=502,INF=1000000000;
 struct edge{
 	int x,y;
 	int c;	
-	int f;
 	edge *next,*back;
 	edge(){}
-	edge(int x,int y,int c,edge* next):x(x),y(y),c(c),f(0),next(next),back(0){}
+	edge(int x,int y,int c,edge* next):x(x),y(y),c(c),next(next),back(0){}
 	void* operator new(size_t, void *p){
 		return p;
 	}
@@ -54,7 +52,7 @@ int max_flow(){
 		for(;;){
 			if(i==sink){
 				int mink=0;
-				int delta=INT_MAX;
+				int delta=0x11111111;
 				for(int k=0;k<path_n;++k){
 					if(path[k]->c < delta){
 						delta = path[k]->c;
