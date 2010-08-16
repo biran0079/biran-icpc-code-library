@@ -31,15 +31,7 @@ struct Treap{
 		res->pri=rand();
 		return res;
 	}
-	void clear(node* cur){
-		if(null!=cur){
-			clear(cur->left);
-			clear(cur->right);
-			delete cur;
-		}
-	}
 	void clear(){
-		clear(root);
 		root=null;
 		alloc_ptr=0;
 	}
