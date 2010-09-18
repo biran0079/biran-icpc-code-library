@@ -133,6 +133,8 @@ struct Treap{
 		}		
 		return false;
 	}
+	T find_max(){return find_max(root);}
+	T find_min(){return find_min(root);}
 	T find_max(node* cur){
 		while(cur->right!=null)
 			cur=cur->right;
