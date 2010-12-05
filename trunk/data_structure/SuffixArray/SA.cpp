@@ -4,7 +4,7 @@
 #include<vector>
 #include<time.h>
 using namespace std;
-const int MAXN=1000000;
+const int MAXN=10000000;
 int rank[MAXN],H;
 struct SuffixArray{
 	int i;
@@ -30,7 +30,15 @@ void build_SA(char *s,SuffixArray* SA){
 	}
 	int* trank=new int[N];	//comparison need to use rank. cannot update inplace
 	for(H=1;;H*=2){
-		sort(SA,SA+N);
+		int p=0;
+		for(int i=1;i<N;i++){
+			if(rank[SA[i].i]!=rank[SA[i-1].i]){
+				sort(SA+p,SA+i);
+				p=i;
+			}
+		}
+		sort(SA+p,SA+N);
+		//stable_sort(SA,SA+N);
 		int rN=0;
 		for(int i=0;i<N;i++){
 			if(i && SA[i]==SA[i-1]){
@@ -42,6 +50,7 @@ void build_SA(char *s,SuffixArray* SA){
 		memcpy(rank,trank,N*sizeof(int));
 		if(rN==N)break;
 	}
+	delete[] trank;
 }
 bool cmp(int i,int j){
 	return strcmp(s+i,s+j)<0;
@@ -69,7 +78,7 @@ int main(){
 				break;
 			}
 		if(pass) printf("result: pass\n\n");
-		else printf("result: fail\\nn\n");
+		else printf("result: fail\n\n\n");
 	}
 	return 0;
 }
