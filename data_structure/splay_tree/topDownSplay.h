@@ -186,7 +186,7 @@ void SplayTree<T>::insert(const T& v){
 			new_node->left=root;
 			root->right=null;
 			root=new_node;
-		}
+		}else new_node->value = v;
 	}
 }
 template<class T>
