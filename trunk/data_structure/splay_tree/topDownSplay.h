@@ -5,10 +5,11 @@
 #include<iostream>
 #include<fstream>
 #include<queue>
+#include"BinarySearchTree.h"
 using namespace std;
 
 template<class T>
-class SplayTree{
+class SplayTree : public BinarySearchTree<T>{
 	private:
 		class Node{
 		public:
@@ -37,9 +38,18 @@ class SplayTree{
 		const T& findMin();
 		const T& findMax();
 		bool contains(const T& v);
+		const T* find(const T& v);
 		void printElements();
 		void toDot(const char* fileName);
 };
+template<class T>
+const T* SplayTree<T>::find(const T& v){
+	if(root==null)return 0;
+	root=splay(v,root);
+	if(root->value == v)
+		return &(root->value);
+	return 0;
+}
 template<class T>
 void SplayTree<T>::printElements(){
 	cout<<"[ ";
